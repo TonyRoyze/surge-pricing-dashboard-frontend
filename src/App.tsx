@@ -28,7 +28,7 @@ function App() {
 
           <div className="flex items-center space-x-4">
             <Badge variant="secondary" className="hidden sm:inline-flex font-medium bg-primary/5 text-primary border-primary/10">
-              v2.1 Stable
+              v1.2 Stable
             </Badge>
             <div className="h-8 w-8 rounded-full bg-muted border flex items-center justify-center cursor-pointer hover:bg-muted/80 transition-colors">
               <span className="text-[10px] font-bold">JD</span>
