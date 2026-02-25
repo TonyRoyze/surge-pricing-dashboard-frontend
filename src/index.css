@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+  --font-sans: "Sohne", "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   --color-background: hsl(var(--background));
@@ -67,25 +67,25 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 0%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 0%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    --popover-foreground: 0 0% 0%;
+    --primary: 158 100% 23%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 160 32% 87%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 160 32% 87%;
+    --muted-foreground: 158 40% 23%;
+    --accent: 160 32% 87%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 78% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 160 20% 80%;
+    --input: 160 20% 80%;
+    --ring: 158 100% 23%;
+    --radius: 0.7rem;
   }
 
   .dark {

@@ -1,21 +1,46 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
-import { cn } from './utils';
 import { Badge } from './components/ui/badge';
 import { AlertCircle, TrendingUp, Zap } from 'lucide-react';
 
 interface PredictionResultProps {
-  prediction: { surge_multiplier: number; confidence: number } | null;
+  prediction: { predicted_price: number } | null;
   loading: boolean;
   error: string | null;
 }
 
+const CURRENCY_RATES: Record<string, number> = {
+  INR: 1,
+  USD: 0.012,
+  EUR: 0.011,
+  GBP: 0.0095,
+  AED: 0.044,
+  LKR: 3.67,
+};
+
+const CURRENCIES = ['INR', 'USD', 'EUR', 'GBP', 'AED', 'LKR'];
+
 const PredictionResult: React.FC<PredictionResultProps> = ({ prediction, loading, error }) => {
-  const getSurgeInfo = (multiplier: number) => {
-    if (multiplier >= 2.5) return { color: 'text-destructive', label: 'High Surge', variant: 'destructive' as const };
-    if (multiplier >= 1.5) return { color: 'text-amber-500', label: 'Moderate Surge', variant: 'secondary' as const };
-    return { color: 'text-emerald-500', label: 'Normal Pricing', variant: 'default' as const };
+  const [currency, setCurrency] = useState('INR');
+
+  const getPriceBand = (inrPrice: number) => {
+    if (inrPrice >= 800) return { color: 'text-destructive', label: 'High Fare', variant: 'destructive' as const };
+    if (inrPrice >= 300) return { color: 'text-amber-500', label: 'Mid Fare', variant: 'secondary' as const };
+    return { color: 'text-emerald-500', label: 'Low Fare', variant: 'default' as const };
   };
+
+  const formatCurrency = (value: number, code: string) =>
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: code,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+
+  const convertedPrice = useMemo(
+    () => (prediction ? prediction.predicted_price * CURRENCY_RATES[currency] : 0),
+    [prediction, currency]
+  );
 
   const itemVariants = {
     hidden: { opacity: 0, scale: 0.95 },
@@ -23,7 +48,7 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ prediction, loading
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center min-h-[300px]">
+    <div className="w-full flex flex-col items-center justify-center min-h-[150px]">
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
@@ -42,8 +67,8 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ prediction, loading
               <Zap className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-primary animate-pulse" />
             </div>
             <div className="text-center">
-              <p className="text-lg font-semibold">Analyzing Markets</p>
-              <p className="text-sm text-muted-foreground">Calculating optimal multiplier...</p>
+              <p className="text-lg font-semibold">Analyzing Trip Inputs</p>
+              <p className="text-sm text-muted-foreground">Calculating predicted price...</p>
             </div>
           </motion.div>
         ) : error ? (
@@ -68,37 +93,38 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ prediction, loading
             animate="visible"
             className="w-full space-y-8"
           >
-            <div className="text-center space-y-2">
-              <Badge variant={getSurgeInfo(prediction.surge_multiplier).variant} className="px-4 py-1 text-sm font-bold uppercase tracking-widest mb-4">
-                {getSurgeInfo(prediction.surge_multiplier).label}
-              </Badge>
-              <div className="relative inline-block">
-                <motion.h2
-                  className={cn("text-8xl font-black tracking-tighter", getSurgeInfo(prediction.surge_multiplier).color)}
+            <div className="text-center space-y-3">
+              <div className="mb-2 flex items-center justify-center gap-3">
+                <Badge variant={getPriceBand(prediction.predicted_price).variant} className="px-4 py-1 text-sm font-bold uppercase tracking-widest">
+                  {getPriceBand(prediction.predicted_price).label}
+                </Badge>
+                <select
+                  value={currency}
+                  onChange={(event) => setCurrency(event.target.value)}
+                  className="h-8 rounded-md border border-border bg-background px-2 text-xs font-semibold"
+                  aria-label="Select output currency"
                 >
-                  <AnimatedNumber value={prediction.surge_multiplier} />
-                  <span className="text-4xl ml-1">x</span>
-                </motion.h2>
+                  {CURRENCIES.map((code) => (
+                    <option key={code} value={code}>
+                      {code}
+                    </option>
+                  ))}
+                </select>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl border bg-card/50 backdrop-blur-sm space-y-1">
-                <p className="text-xs font-medium text-muted-foreground uppercase">Confidence</p>
-                <p className="text-2xl font-bold">{(prediction.confidence * 100).toFixed(0)}%</p>
+              <div className="relative inline-block">
+                <motion.p className="text-5xl sm:text-6xl font-black tracking-tight text-foreground">
+                  <AnimatedNumber value={convertedPrice} formatter={(num) => formatCurrency(num, currency)} />
+                </motion.p>
               </div>
-              <div className="p-4 rounded-xl border bg-card/50 backdrop-blur-sm space-y-1">
-                <p className="text-xs font-medium text-muted-foreground uppercase">Trend</p>
-                <div className="flex items-center space-x-2">
-                  <p className="text-2xl font-bold text-emerald-500">Stable</p>
-                  <TrendingUp className="h-5 w-5 text-emerald-500" />
-                </div>
-              </div>
-            </div>
 
-            <p className="text-center text-xs text-muted-foreground italic px-8">
-              Based on real-time demand patterns and historical surge data for this zone.
-            </p>
+              <p className="text-xs text-muted-foreground">
+                Base model output: {formatCurrency(prediction.predicted_price, 'INR')} (INR)
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Conversion rates are static for UI preview.
+              </p>
+            </div>
           </motion.div>
         ) : (
           <motion.div
@@ -113,7 +139,7 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ prediction, loading
             </div>
             <div className="space-y-2">
               <h3 className="text-xl font-semibold text-foreground">Ready to Forecast</h3>
-              <p className="text-sm max-w-[280px]">Adjust the parameters on the left and click predict to see the expected surge multiplier.</p>
+              <p className="text-sm max-w-[280px]">Adjust the inputs on the left and click predict to see the estimated trip price.</p>
             </div>
           </motion.div>
         )}
@@ -122,15 +148,15 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ prediction, loading
   );
 };
 
-const AnimatedNumber: React.FC<{ value: number }> = ({ value }) => {
+const AnimatedNumber: React.FC<{ value: number; formatter?: (value: number) => string }> = ({ value, formatter }) => {
   const count = useMotionValue(0);
-  const rounded = useTransform(count, (latest: number) => latest.toFixed(2));
+  const rounded = useTransform(count, (latest: number) => (formatter ? formatter(latest) : latest.toFixed(2)));
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const controls = animate(count, value, { duration: 1.5, ease: [0.16, 1, 0.3, 1] });
 
-    const unsubscribe = rounded.on("change", (latest) => {
+    const unsubscribe = rounded.on('change', (latest) => {
       if (ref.current) ref.current.textContent = latest;
     });
 
@@ -140,7 +166,7 @@ const AnimatedNumber: React.FC<{ value: number }> = ({ value }) => {
     };
   }, [value, count, rounded]);
 
-  return <span ref={ref}>0.00</span>;
+  return <span ref={ref}>{formatter ? formatter(0) : '0.00'}</span>;
 };
 
 export default PredictionResult;
