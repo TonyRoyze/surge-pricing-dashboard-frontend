@@ -1,73 +1,69 @@
-# Surge Pricing Dashboard
+# Dynamic Surge Pricing — ML Modeling Pipeline
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Problem Statement
 
-Currently, two official plugins are available:
+Our ride-sharing company currently sets fares based **only on ride duration**, using a fixed pricing rule that ignores real-time market conditions.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+As a result, during peak hours (e.g., office closing time with heavy rain) this leads to:
 
-## React Compiler
+- 🕐 Long waiting times for riders
+- ❌ Ride cancellations
+- 🚗 Inefficient driver allocation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Overview
+The frontend is a Vite + React + TypeScript app for:
+- live ride price prediction
+- a separate rides tracking page
+- ride filtering, currency display, and simulation preview controls
 
-## Expanding the ESLint configuration
+## Stack and Tech
+- React 19 (`react`, `react-dom`)
+- TypeScript 5
+- Vite 7 (dev server + build)
+- Tailwind CSS 4 (design system + utility styling)
+- Framer Motion (animations)
+- Axios (API calls)
+- Radix UI primitives (`@radix-ui/react-*`) + custom UI wrappers
+- `class-variance-authority`, `clsx`, `tailwind-merge` (component style variants)
+- ESLint 9 + TypeScript ESLint
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Key App Modules
+- `src/App.tsx`: top-level layout and page switching (`#/home`, `#/rides`)
+- `src/Dashboard.tsx`: live fare prediction flow
+- `src/PredictionResult.tsx`: animated prediction output UI
+- `src/RidesDashboard.tsx`: rides table, filters, currency view, simulated entries
+- `src/api.ts`: shared API base URL + response types
+- `src/components/ui/*`: reusable UI primitives
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## API Integration
+The frontend reads backend URL from:
+- `VITE_API_BASE_URL` (optional)
+- fallback: `http://localhost:8001`
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Endpoints used:
+- `POST /predict`
+- `POST /predict-profit-percentages`
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Local Development
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Build
+```bash
+cd frontend
+npm run build
+npm run preview
 ```
+
+## Screenshots
+Add screenshots to `frontend/docs/screenshots/` and update paths below.
+
+### Home Page
+![Home Page](./public/homepage.png)
+
+### Rides Dashboard
+![Rides Dashboard](./public/dashboard.png)
+
