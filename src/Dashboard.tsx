@@ -4,11 +4,7 @@ import InputControls from './InputControls';
 import type { InputFormData } from './InputControls';
 import PredictionResult from './PredictionResult';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './components/ui/card';
-
-const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8001';
-const API_BASE_URL = RAW_API_BASE_URL
-  .replace(/^http:\/\/([^/]+\.vercel\.app)(\/?.*)$/, 'https://$1$2')
-  .replace(/\/+$/, ''); // FastAPI backend URL
+import { API_BASE_URL } from './api';
 
 interface PredictionResponse {
   predicted_price: number;

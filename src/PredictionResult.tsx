@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
-import { Badge } from './components/ui/badge';
 import { AlertCircle, TrendingUp, Zap } from 'lucide-react';
 
 interface PredictionResultProps {
@@ -18,16 +17,10 @@ const CURRENCY_RATES: Record<string, number> = {
   LKR: 3.67,
 };
 
-const CURRENCIES = ['INR', 'USD', 'EUR', 'GBP', 'AED', 'LKR'];
+const CURRENCIES = Object.keys(CURRENCY_RATES);
 
 const PredictionResult: React.FC<PredictionResultProps> = ({ prediction, loading, error }) => {
   const [currency, setCurrency] = useState('INR');
-
-  const getPriceBand = (inrPrice: number) => {
-    if (inrPrice >= 800) return { color: 'text-destructive', label: 'High Fare', variant: 'destructive' as const };
-    if (inrPrice >= 300) return { color: 'text-amber-500', label: 'Mid Fare', variant: 'secondary' as const };
-    return { color: 'text-emerald-500', label: 'Low Fare', variant: 'default' as const };
-  };
 
   const formatCurrency = (value: number, code: string) =>
     new Intl.NumberFormat('en-US', {
@@ -95,13 +88,13 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ prediction, loading
           >
             <div className="text-center space-y-3">
               <div className="mb-2 flex items-center justify-center gap-3">
-                <Badge variant={getPriceBand(prediction.predicted_price).variant} className="px-4 py-1 text-sm font-bold uppercase tracking-widest">
+                {/* <Badge variant={getPriceBand(prediction.predicted_price).variant} className="px-4 py-1 text-sm font-bold uppercase tracking-widest">
                   {getPriceBand(prediction.predicted_price).label}
-                </Badge>
+                </Badge> */}
                 <select
                   value={currency}
                   onChange={(event) => setCurrency(event.target.value)}
-                  className="h-8 rounded-md border border-border bg-background px-2 text-xs font-semibold"
+                  className="h-8 w-20 rounded-md border border-border bg-background px-2 text-sm font-semibold"
                   aria-label="Select output currency"
                 >
                   {CURRENCIES.map((code) => (
